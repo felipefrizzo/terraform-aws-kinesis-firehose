@@ -14,7 +14,7 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
       prefix      = "${var.kinesis_firehose_stream_backup_prefix}"
 
       cloudwatch_logging_options {
-        enabled = true
+        enabled         = true
         log_group_name  = "${aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name}"
         log_stream_name = "${aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream.name}"
       }

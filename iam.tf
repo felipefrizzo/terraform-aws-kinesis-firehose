@@ -107,7 +107,7 @@ resource "aws_iam_role_policy" "lambda_to_cloudwatch_policy" {
 }
 
 data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
-    statement {
+  statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
     principals {
@@ -119,10 +119,10 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
 
 data "aws_iam_policy_document" "cloudwatch_logs_assume_policy" {
   statement {
-  effect = "Allow",
-  actions = ["firehose:*"],
-  resources = ["${aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn}"]
-}
+    effect = "Allow",
+    actions = ["firehose:*"],
+    resources = ["${aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn}"]
+  }
 }
 
 resource "aws_iam_role" "cloudwatch_logs_role" {
@@ -135,5 +135,3 @@ resource "aws_iam_role_policy" "cloudwatch_logs_policy" {
   role   = "${aws_iam_role.cloudwatch_logs_role.name}"
   policy = "${data.aws_iam_policy_document.cloudwatch_logs_assume_policy.0.json}"
 }
-
-

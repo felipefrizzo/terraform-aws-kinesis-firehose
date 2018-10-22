@@ -31,7 +31,7 @@ STATUS_OK: str = 'Ok'
 DROPPED: str = 'Dropped'
 FAILED: str = 'ProcessingFailed'
 
-logger =  logging.getLogger()
+logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 

@@ -129,7 +129,7 @@ resource "aws_glue_catalog_table" "glue_catalog_table" {
       }
     }
 
-    columns = []
+    columns = "${var.aws_glue_catalog_table_columns}"
   }
 }
 

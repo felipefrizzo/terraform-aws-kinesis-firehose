@@ -4,6 +4,7 @@ variable "kinesis_firehose_stream_name" {
 
 variable "kinesis_firehose_stream_backup_prefix" {
   description = "The prefix name to use for the kinesis backup"
+  default     = "backup"
 }
 
 variable "bucket_name" {
@@ -24,6 +25,11 @@ variable "glue_catalog_database_name" {
 
 variable "glue_catalog_table_name" {
   description = "The Glue catalog database table name"
+}
+
+variable "aws_glue_catalog_table_columns" {
+  description = "A list of table columns"
+  type        = "list"
 }
 
 variable "cloudwatch_subscription_filter_name" {

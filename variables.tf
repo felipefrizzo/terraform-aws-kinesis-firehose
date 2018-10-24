@@ -27,7 +27,7 @@ variable "glue_catalog_table_name" {
   description = "The Glue catalog database table name"
 }
 
-variable "aws_glue_catalog_table_columns" {
+variable "glue_catalog_table_columns" {
   description = "A list of table columns"
   type        = "list"
 }

@@ -1,3 +1,7 @@
+data "aws_provide" "default" {
+  current = "true"
+}
+
 data "aws_iam_policy_document" "kinesis_firehose_stream_assume_role" {
   statement {
     effect  = "Allow"
@@ -112,7 +116,7 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
-      identifiers = ["logs.*.amazonaws.com"]
+      identifiers = ["logs.${length(var.region) > 0 ? var.region: data.aws_region.default.name}.amazonaws.com"]
     }
   }
 }

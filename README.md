@@ -5,6 +5,7 @@ Terraform module to starting a [kinesis firehose]('https://aws.amazon.com/kinesi
 ```
 module "kinesis-firehose" {
   source                                = "git::https://github.com/felipefrizzo/terraform-aws-kinesis-firehose.git?ref=master"
+  region                                = "aws_region"
   kinesis_firehose_stream_name          = "stream_name"
   kinesis_firehose_stream_backup_prefix = "bucket_backup_prefix"
   bucket_name                           = "bucket_name"
@@ -23,6 +24,7 @@ module "kinesis-firehose" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-------:|:--------:|
+| region | The aws region (e.g. `us-east-1`) | string | `` | no |
 | kinesis_firehose_stream_name | Name to be use on kinesis firehose stream (e.g. `poc_logs`) | string | - | yes |
 | kinesis_firehose_stream_backup_prefix | The prefix name to use for the kinesis backup (e.g. `backup_prefix`) | string | `` | no |
 | bucket_name | Bucket name | string | - | yes |

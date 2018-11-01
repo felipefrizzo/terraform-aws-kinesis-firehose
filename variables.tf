@@ -1,3 +1,8 @@
+variable "region" {
+  description = "AWS region"
+  default     = ""
+}
+
 variable "kinesis_firehose_stream_name" {
   description = "Name to be use on kinesis firehose stream"
 }

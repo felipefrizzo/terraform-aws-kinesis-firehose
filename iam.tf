@@ -1,7 +1,3 @@
-data "aws_provide" "default" {
-  current = "true"
-}
-
 data "aws_iam_policy_document" "kinesis_firehose_stream_assume_role" {
   statement {
     effect  = "Allow"

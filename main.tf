@@ -1,3 +1,7 @@
+data "aws_region" "default" {
+  current = "true"
+}
+
 resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
   name        = "${var.kinesis_firehose_stream_name}"
   destination = "extended_s3"

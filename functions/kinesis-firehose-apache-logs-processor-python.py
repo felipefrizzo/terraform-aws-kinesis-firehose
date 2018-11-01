@@ -39,10 +39,10 @@ logger.setLevel(logging.INFO)
 class DataTransformation:
     def __init__(self, records: list) -> None:
         logger.info('Start Kinesis Firehose data transformation.')
-        self.records = records
-        self.pattern = r"(?P<ip>[\d.]+) (\S+) (\S+) \[(?P<date>[\w:/]+\s[\+\-]\d{4})\] \"(?P<method>[A-Z.]+) (?P<path>\S+) (\S+)\" (?P<status>[\d.]+) (\S+) \"(?P<from>\w.|\S+)\" \"(?P<user_agent>\w.+)\""
-        self.output = []
-        self.fields = [
+        self.records: list = records
+        self.pattern: str = r"(?P<ip>[\d.]+) (\S+) (\S+) \[(?P<date>[\w:/]+\s[\+\-]\d{4})\] \"(?P<method>[A-Z.]+) (?P<path>\S+) (\S+)\" (?P<status>[\d.]+) (\S+) \"(?P<from>\w.|\S+)\" \"(?P<user_agent>\w.+)\""
+        self.output: list = []
+        self.fields: list = [
             'ip',
             'date',
             'method',
@@ -55,7 +55,7 @@ class DataTransformation:
     def process(self) -> list:
         for record in self.records:
             record_id: int = record.get('recordId', None)
-            payload = self.__decompress(record.get('data'), None)
+            payload: dict = self.__decompress(record.get('data'), None)
             logger.info(f'Payload to be transform: {payload}')
 
             message_type: str = payload.get('messageType', None)
@@ -81,10 +81,10 @@ class DataTransformation:
     def __compress(self, data) -> str:
         return b64.b64encode(json.dumps(data).encode('UTF-8')).decode('UTF-8')
     
-    def __decompress(self, data) -> str:
-        return gzip.decompress(b64.b64decode(data))
+    def __decompress(self, data) -> dict:
+        return json.loads(gzip.decompress(b64.b64decode(data)))
     
-    def __transformation(self, payload) -> [dict, str]:
+    def __transformation(self, payload: dict) -> [dict, str]:
         data = None
 
         for event in payload.pop('logEvents', None):

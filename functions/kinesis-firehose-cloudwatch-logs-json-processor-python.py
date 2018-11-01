@@ -38,8 +38,8 @@ logger.setLevel(logging.INFO)
 class DataTransformation:
     def __init__(self, records: list) -> None:
         logger.info('Start Kinesis Firehose data transformation.')
-        self.records = records
-        self.output = []
+        self.records: list = records
+        self.output: list = []
 
     def process(self) -> list:
         for record in self.records:

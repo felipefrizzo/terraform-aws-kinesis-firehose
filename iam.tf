@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
-      identifiers = ["firehose.amazonaws.com"]
+      identifiers = ["lambda.amazonaws.com"]
     }
   }
 }
@@ -96,7 +96,7 @@ resource "aws_iam_role" "lambda" {
 
 resource "aws_iam_role_policy" "lambda_policy" {
   name   = "lambda_function_policy"
-  role   = "${aws_iam_role.lambda.name}"
+  role   = "${aws_iam_role.kinesis_firehose_stream_role.name}"
   policy = "${data.aws_iam_policy_document.lambda_assume_policy.0.json}"
 }
 

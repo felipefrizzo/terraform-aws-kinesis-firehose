@@ -75,15 +75,20 @@ resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
   acl = "private"
 }
 
+locals {
+  path_prefix = "${var.root_path == true ? path.root : path.module}/functions"
+}
+
+
 data "null_data_source" "lambda_file" {
   inputs {
-    filename = "${substr("${path.module}/functions/${var.lambda_function_file_name}.py", length(path.cwd) + 1, -1)}"
+    filename = "${substr("${local.path_prefix}/${var.lambda_function_file_name}.py", length(path.cwd) + 1, -1)}"
   }
 }
 
 data "null_data_source" "lambda_archive" {
   inputs {
-    filename = "${substr("${path.module}/functions/${var.lambda_function_file_name}.zip", length(path.cwd) + 1, -1)}"
+    filename = "${substr("${local.path_prefix}/${var.lambda_function_file_name}.zip", length(path.cwd) + 1, -1)}"
   }
 }
 

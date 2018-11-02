@@ -12,6 +12,11 @@ variable "kinesis_firehose_stream_backup_prefix" {
   default     = "backup"
 }
 
+variable "root_path" {
+  description = "The path where the lambda function file is located is root or module path"
+  default     = false
+}
+
 variable "bucket_name" {
   description = "The bucket name"
 }

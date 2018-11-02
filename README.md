@@ -9,6 +9,7 @@ module "kinesis-firehose" {
   kinesis_firehose_stream_name          = "stream_name"
   kinesis_firehose_stream_backup_prefix = "bucket_backup_prefix"
   bucket_name                           = "bucket_name"
+  root_path                             = false
   lambda_function_name                  = "lambda_function_name"
   lambda_function_file_name             = "kinesis-firehose-cloudwatch-logs-json-processor-python"
   glue_catalog_database_name            = "glue_catalog_database_name"
@@ -28,6 +29,7 @@ module "kinesis-firehose" {
 | kinesis_firehose_stream_name | Name to be use on kinesis firehose stream (e.g. `poc_logs`) | string | - | yes |
 | kinesis_firehose_stream_backup_prefix | The prefix name to use for the kinesis backup (e.g. `backup_prefix`) | string | `` | no |
 | bucket_name | Bucket name | string | - | yes |
+| root_path | The path where the lambda function file is located is root or module path (e.g. `true`) | boolean | `` | no |
 | lambda_function_name | Lambda function name (e.g. `lambda_kinesis`) | string | - | yes |
 | lambda_function_file_name | Lambda function file name | string | - | yes |
 | glue_catalog_database_name | Glue catalog database name | string | - | yes |

@@ -55,7 +55,7 @@ class DataTransformation:
     def process(self) -> list:
         for record in self.records:
             record_id: int = record.get('recordId', None)
-            payload: dict = self.__decompress(record.get('data'), None)
+            payload: dict = self.__decompress(record.get('data', None))
             logger.info(f'Payload to be transform: {payload}')
 
             message_type: str = payload.get('messageType', None)
@@ -76,6 +76,7 @@ class DataTransformation:
                 output_record = {'recordId': record_id, 'result': FAILED}
                 self.output.append(output_record)
 
+        logger.info(f'Data after finish transformation: {self.output}')
         return self.output
 
     def __compress(self, data) -> str:
@@ -95,8 +96,13 @@ class DataTransformation:
                 data = {field: matches.group(field) for field in self.fields}
                 result = STATUS_OK
             elif 'HealthChecker' in matches.group('user_agent'):
+                logger.info('Dropped HealthChecker log message')
                 result = DROPPED
             else:
+                logger.info(
+                    "[ERROR] The log message doesn't match with "
+                    "the regex pattern"
+                )
                 result = FAILED
 
             yield [data, result]

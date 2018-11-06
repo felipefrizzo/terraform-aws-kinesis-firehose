@@ -51,7 +51,6 @@ class DataTransformation:
 
             if message_type == 'CONTROL_MESSAGE':
                 output_record = {'recordId': record_id, 'result': DROPPED}
-                self.output.append(output_record)
             elif message_type == 'DATA_MESSAGE':
                 data = self.__transformation(payload)
                 logger.info(f'Payload after transformation: {data}')
@@ -60,10 +59,9 @@ class DataTransformation:
                     'result': STATUS_OK,
                     'data': self.__compress(data)
                 }
-                self.output.append(output_record)
             else:
                 output_record = {'recordId': record_id, 'result': FAILED}
-                self.output.append(output_record)
+            self.output.append(output_record)
 
         logger.info(f'Data after finish transformation: {self.output}')
         return self.output
@@ -76,7 +74,7 @@ class DataTransformation:
 
     def __transformation(self, payload: dict) -> str:
         record = '\r\n'.join(
-            e.pop('message')) for e in payload.pop('logEvents', None)
+            e.pop('message') for e in payload.pop('logEvents', None)
         )
         return record
 

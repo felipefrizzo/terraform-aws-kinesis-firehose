@@ -11,9 +11,9 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
     s3_backup_mode = "Enabled"
 
     s3_backup_configuration {
-      role_arn    = "${aws_iam_role.kinesis_firehose_stream_role.arn}"
-      bucket_arn  = "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}"
-      prefix      = "${var.kinesis_firehose_stream_backup_prefix}"
+      role_arn   = "${aws_iam_role.kinesis_firehose_stream_role.arn}"
+      bucket_arn = "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}"
+      prefix     = "${var.kinesis_firehose_stream_backup_prefix}"
 
       cloudwatch_logging_options {
         enabled         = true
@@ -23,11 +23,13 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
     }
 
     processing_configuration {
-      enabled    = true
+      enabled = true
+
       processors = [{
         type = "Lambda"
+
         parameters = [{
-          parameter_name  = "LambdaArn",
+          parameter_name  = "LambdaArn"
           parameter_value = "${aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn}:$LATEST"
         }]
       }]
@@ -67,18 +69,17 @@ resource "aws_cloudwatch_log_group" "kinesis_firehose_stream_logging_group" {
 
 resource "aws_cloudwatch_log_stream" "kinesis_firehose_stream_logging_stream" {
   log_group_name = "${aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name}"
-  name = "S3Delivery"
+  name           = "S3Delivery"
 }
 
 resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
   bucket = "${var.bucket_name}"
-  acl = "private"
+  acl    = "private"
 }
 
 locals {
   path_prefix = "${var.root_path == true ? path.root : path.module}/functions"
 }
-
 
 data "null_data_source" "lambda_file" {
   inputs {
@@ -106,11 +107,11 @@ resource "aws_lambda_function" "lambda_kinesis_firehose_data_transformation" {
   filename      = "${data.archive_file.kinesis_firehose_data_transformation.0.output_path}"
   function_name = "${var.lambda_function_name}"
 
-  role              = "${aws_iam_role.lambda.arn}"
-  handler           = "${var.lambda_function_file_name}.lambda_handler"
-  source_code_hash  = "${data.archive_file.kinesis_firehose_data_transformation.0.output_base64sha256}"
-  runtime           = "python3.6"
-  timeout           = 60
+  role             = "${aws_iam_role.lambda.arn}"
+  handler          = "${var.lambda_function_file_name}.lambda_handler"
+  source_code_hash = "${data.archive_file.kinesis_firehose_data_transformation.0.output_base64sha256}"
+  runtime          = "python3.6"
+  timeout          = 60
 }
 
 resource "aws_glue_catalog_database" "glue_catalog_database" {
@@ -120,15 +121,20 @@ resource "aws_glue_catalog_database" "glue_catalog_database" {
 resource "aws_glue_catalog_table" "glue_catalog_table" {
   name          = "${var.glue_catalog_table_name}"
   database_name = "${aws_glue_catalog_database.glue_catalog_database.name}"
-  parameters    = { "classification" = "parquet" }
+
+  parameters = {
+    "classification" = "parquet"
+  }
 
   storage_descriptor = {
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
     location      = "s3://${aws_s3_bucket.kinesis_firehose_stream_bucket.bucket}/"
-    ser_de_info   = {
+
+    ser_de_info = {
       name                  = "JsonSerDe"
       serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+
       parameters = {
         "serialization.format" = 1
         "explicit.null"        = false
@@ -147,7 +153,6 @@ resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filte
 
   destination_arn = "${aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn}"
   distribution    = "ByLogStream"
-  
+
   role_arn = "${aws_iam_role.cloudwatch_logs_role.arn}"
 }
-

@@ -2,6 +2,7 @@ data "aws_iam_policy_document" "kinesis_firehose_stream_assume_role" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
+
     principals {
       type        = "Service"
       identifiers = ["firehose.amazonaws.com"]
@@ -11,26 +12,28 @@ data "aws_iam_policy_document" "kinesis_firehose_stream_assume_role" {
 
 data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
   statement {
-    effect = "Allow",
+    effect = "Allow"
+
     actions = [
       "s3:AbortMultipartUpload",
       "s3:GetBucketLocation",
       "s3:GetObject",
       "s3:ListBucket",
       "s3:ListBucketMultipartUploads",
-      "s3:PutObject"
+      "s3:PutObject",
     ]
+
     resources = [
       "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}",
-      "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}/*"
+      "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}/*",
     ]
   }
 }
 
 data "aws_iam_policy_document" "kinesis_firehose_access_glue_assume_policy" {
   statement {
-    effect = "Allow",
-    actions = ["glue:GetTableVersions"],
+    effect    = "Allow"
+    actions   = ["glue:GetTableVersions"]
     resources = ["*"]
   }
 }
@@ -56,6 +59,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
+
     principals {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
@@ -65,26 +69,30 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 
 data "aws_iam_policy_document" "lambda_assume_policy" {
   statement {
-    effect = "Allow",
+    effect = "Allow"
+
     actions = [
       "lambda:InvokeFunction",
-      "lambda:GetFunctionConfiguration"
+      "lambda:GetFunctionConfiguration",
     ]
+
     resources = [
       "${aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn}",
-      "${aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn}:*"
+      "${aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn}:*",
     ]
   }
 }
 
 data "aws_iam_policy_document" "lambda_to_cloudwatch_assume_policy" {
   statement {
-    effect = "Allow",
+    effect = "Allow"
+
     actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ],
+      "logs:PutLogEvents",
+    ]
+
     resources = ["*"]
   }
 }
@@ -110,6 +118,7 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
+
     principals {
       type        = "Service"
       identifiers = ["logs.${length(var.region) > 0 ? var.region: data.aws_region.default.name}.amazonaws.com"]
@@ -119,8 +128,8 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
 
 data "aws_iam_policy_document" "cloudwatch_logs_assume_policy" {
   statement {
-    effect = "Allow",
-    actions = ["firehose:*"],
+    effect    = "Allow"
+    actions   = ["firehose:*"]
     resources = ["${aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn}"]
   }
 }

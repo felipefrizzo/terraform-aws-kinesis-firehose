@@ -53,14 +53,14 @@ class DataTransformation:
                 output_record = {'recordId': record_id, 'result': DROPPED}
                 self.output.append(output_record)
             elif message_type == 'DATA_MESSAGE':
-                for data in self.__transformation(payload):
-                    logger.info(f'Payload after transformation: {data}')
-                    output_record = {
-                        'recordId': record_id,
-                        'result': STATUS_OK,
-                        'data': self.__compress(data)
-                    }
-                    self.output.append(output_record)
+                data = self.__transformation(payload)
+                logger.info(f'Payload after transformation: {data}')
+                output_record = {
+                    'recordId': record_id,
+                    'result': STATUS_OK,
+                    'data': self.__compress(data)
+                }
+                self.output.append(output_record)
             else:
                 output_record = {'recordId': record_id, 'result': FAILED}
                 self.output.append(output_record)
@@ -69,14 +69,16 @@ class DataTransformation:
         return self.output
 
     def __compress(self, data) -> str:
-        return b64.b64encode(json.dumps(data).encode('UTF-8')).decode('UTF-8')
+        return b64.b64encode(data.encode('UTF-8')).decode('UTF-8')
 
     def __decompress(self, data) -> dict:
         return json.loads(gzip.decompress(b64.b64decode(data)))
 
-    def __transformation(self, payload: dict) -> dict:
-        for event in payload.pop('logEvents', None):
-            yield json.loads(event.pop('message', None))
+    def __transformation(self, payload: dict) -> str:
+        record = '\r\n'.join(
+            e.pop('message')) for e in payload.pop('logEvents', None)
+        )
+        return record
 
 
 def lambda_handler(event, context) -> dict:

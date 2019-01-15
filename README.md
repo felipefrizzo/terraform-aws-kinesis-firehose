@@ -25,7 +25,6 @@ module "kinesis-firehose" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-------:|:--------:|
-| region | The aws region (e.g. `us-east-1`) | string | `` | no |
 | kinesis_firehose_stream_name | Name to be use on kinesis firehose stream (e.g. `poc_logs`) | string | - | yes |
 | kinesis_firehose_stream_backup_prefix | The prefix name to use for the kinesis backup (e.g. `backup_prefix`) | string | `` | no |
 | bucket_name | Bucket name | string | - | yes |

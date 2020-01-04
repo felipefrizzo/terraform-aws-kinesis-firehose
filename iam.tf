@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "kinesis_firehose_access_bucket_assume_policy" {
     ]
 
     resources = [
-      "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}",
+      aws_s3_bucket.kinesis_firehose_stream_bucket.arn,
       "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}/*",
     ]
   }
@@ -40,19 +40,19 @@ data "aws_iam_policy_document" "kinesis_firehose_access_glue_assume_policy" {
 
 resource "aws_iam_role" "kinesis_firehose_stream_role" {
   name               = "kinesis_firehose_stream_role"
-  assume_role_policy = "${data.aws_iam_policy_document.kinesis_firehose_stream_assume_role.0.json}"
+  assume_role_policy = data.aws_iam_policy_document.kinesis_firehose_stream_assume_role.json
 }
 
 resource "aws_iam_role_policy" "kinesis_firehose_access_bucket_policy" {
   name   = "kinesis_firehose_access_bucket_policy"
-  role   = "${aws_iam_role.kinesis_firehose_stream_role.name}"
-  policy = "${data.aws_iam_policy_document.kinesis_firehose_access_bucket_assume_policy.0.json}"
+  role   = aws_iam_role.kinesis_firehose_stream_role.name
+  policy = data.aws_iam_policy_document.kinesis_firehose_access_bucket_assume_policy.json
 }
 
 resource "aws_iam_role_policy" "kinesis_firehose_access_glue_policy" {
   name   = "kinesis_firehose_access_glue_policy"
-  role   = "${aws_iam_role.kinesis_firehose_stream_role.name}"
-  policy = "${data.aws_iam_policy_document.kinesis_firehose_access_glue_assume_policy.0.json}"
+  role   = aws_iam_role.kinesis_firehose_stream_role.name
+  policy = data.aws_iam_policy_document.kinesis_firehose_access_glue_assume_policy.json
 }
 
 data "aws_iam_policy_document" "lambda_assume_role" {
@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "lambda_assume_policy" {
     ]
 
     resources = [
-      "${aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn}",
+      aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn,
       "${aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn}:*",
     ]
   }
@@ -99,19 +99,19 @@ data "aws_iam_policy_document" "lambda_to_cloudwatch_assume_policy" {
 
 resource "aws_iam_role" "lambda" {
   name               = "lambda_function_role"
-  assume_role_policy = "${data.aws_iam_policy_document.lambda_assume_role.0.json}"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
 }
 
 resource "aws_iam_role_policy" "lambda_policy" {
   name   = "lambda_function_policy"
-  role   = "${aws_iam_role.kinesis_firehose_stream_role.name}"
-  policy = "${data.aws_iam_policy_document.lambda_assume_policy.0.json}"
+  role   = aws_iam_role.kinesis_firehose_stream_role.name
+  policy = data.aws_iam_policy_document.lambda_assume_policy.json
 }
 
 resource "aws_iam_role_policy" "lambda_to_cloudwatch_policy" {
   name   = "lambda_to_cloudwatch_policy"
-  role   = "${aws_iam_role.lambda.name}"
-  policy = "${data.aws_iam_policy_document.lambda_to_cloudwatch_assume_policy.0.json}"
+  role   = aws_iam_role.lambda.name
+  policy = data.aws_iam_policy_document.lambda_to_cloudwatch_assume_policy.json
 }
 
 data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
@@ -130,17 +130,17 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_policy" {
   statement {
     effect    = "Allow"
     actions   = ["firehose:*"]
-    resources = ["${aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn}"]
+    resources = [aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn]
   }
 }
 
 resource "aws_iam_role" "cloudwatch_logs_role" {
   name               = "cloudwatch_logs_role"
-  assume_role_policy = "${data.aws_iam_policy_document.cloudwatch_logs_assume_role.0.json}"
+  assume_role_policy = data.aws_iam_policy_document.cloudwatch_logs_assume_role.json
 }
 
 resource "aws_iam_role_policy" "cloudwatch_logs_policy" {
   name   = "cloudwatch_logs_policy"
-  role   = "${aws_iam_role.cloudwatch_logs_role.name}"
-  policy = "${data.aws_iam_policy_document.cloudwatch_logs_assume_policy.0.json}"
+  role   = aws_iam_role.cloudwatch_logs_role.name
+  policy = data.aws_iam_policy_document.cloudwatch_logs_assume_policy.json
 }

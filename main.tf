@@ -1,25 +1,25 @@
 data "aws_region" "default" {}
 
 resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
-  name        = "${var.kinesis_firehose_stream_name}"
+  name        = var.kinesis_firehose_stream_name
   destination = "extended_s3"
 
   extended_s3_configuration {
-    role_arn       = "${aws_iam_role.kinesis_firehose_stream_role.arn}"
-    bucket_arn     = "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}"
+    role_arn       = aws_iam_role.kinesis_firehose_stream_role.arn
+    bucket_arn     = aws_s3_bucket.kinesis_firehose_stream_bucket.arn
     buffer_size    = 128
     s3_backup_mode = "Enabled"
     prefix         = "logs/"
 
     s3_backup_configuration {
-      role_arn   = "${aws_iam_role.kinesis_firehose_stream_role.arn}"
-      bucket_arn = "${aws_s3_bucket.kinesis_firehose_stream_bucket.arn}"
-      prefix     = "${var.kinesis_firehose_stream_backup_prefix}"
+      role_arn   = aws_iam_role.kinesis_firehose_stream_role.arn
+      bucket_arn = aws_s3_bucket.kinesis_firehose_stream_bucket.arn
+      prefix     = var.kinesis_firehose_stream_backup_prefix
 
       cloudwatch_logging_options {
         enabled         = true
-        log_group_name  = "${aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name}"
-        log_stream_name = "${aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream.name}"
+        log_group_name  = aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name
+        log_stream_name = aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream.name
       }
     }
 
@@ -38,8 +38,8 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
 
     cloudwatch_logging_options {
       enabled         = true
-      log_group_name  = "${aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name}"
-      log_stream_name = "${aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream.name}"
+      log_group_name  = aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name
+      log_stream_name = aws_cloudwatch_log_stream.kinesis_firehose_stream_logging_stream.name
     }
 
     data_format_conversion_configuration {
@@ -56,9 +56,9 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
       }
 
       schema_configuration {
-        database_name = "${aws_glue_catalog_database.glue_catalog_database.name}"
-        table_name    = "${aws_glue_catalog_table.glue_catalog_table.name}"
-        role_arn      = "${aws_iam_role.kinesis_firehose_stream_role.arn}"
+        database_name = aws_glue_catalog_database.glue_catalog_database.name
+        table_name    = aws_glue_catalog_table.glue_catalog_table.name
+        role_arn      = aws_iam_role.kinesis_firehose_stream_role.arn
       }
     }
   }
@@ -69,35 +69,35 @@ resource "aws_cloudwatch_log_group" "kinesis_firehose_stream_logging_group" {
 }
 
 resource "aws_cloudwatch_log_stream" "kinesis_firehose_stream_logging_stream" {
-  log_group_name = "${aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name}"
+  log_group_name = aws_cloudwatch_log_group.kinesis_firehose_stream_logging_group.name
   name           = "S3Delivery"
 }
 
 resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
-  bucket = "${var.bucket_name}"
+  bucket = var.bucket_name
   acl    = "private"
 }
 
 locals {
-  path_prefix = "${var.root_path == true ? path.root : path.module}/functions"
+  path_prefix = "${var.root_path ? path.root : path.module}/functions"
 }
 
 data "null_data_source" "lambda_file" {
-  inputs {
-    filename = "${substr("${local.path_prefix}/${var.lambda_function_file_name}.py", length(path.cwd) + 1, -1)}"
+  inputs = {
+    filename = substr("${local.path_prefix}/${var.lambda_function_file_name}.py", length(path.cwd) + 1, -1)
   }
 }
 
 data "null_data_source" "lambda_archive" {
-  inputs {
-    filename = "${substr("${local.path_prefix}/${var.lambda_function_file_name}.zip", length(path.cwd) + 1, -1)}"
+  inputs = {
+    filename = substr("${local.path_prefix}/${var.lambda_function_file_name}.zip", length(path.cwd) + 1, -1)
   }
 }
 
 data "archive_file" "kinesis_firehose_data_transformation" {
   type        = "zip"
-  source_file = "${data.null_data_source.lambda_file.outputs.filename}"
-  output_path = "${data.null_data_source.lambda_archive.outputs.filename}"
+  source_file = data.null_data_source.lambda_file.outputs.filename
+  output_path = data.null_data_source.lambda_archive.outputs.filename
 }
 
 resource "aws_cloudwatch_log_group" "lambda_function_logging_group" {
@@ -105,23 +105,23 @@ resource "aws_cloudwatch_log_group" "lambda_function_logging_group" {
 }
 
 resource "aws_lambda_function" "lambda_kinesis_firehose_data_transformation" {
-  filename      = "${data.archive_file.kinesis_firehose_data_transformation.0.output_path}"
-  function_name = "${var.lambda_function_name}"
+  filename      = data.archive_file.kinesis_firehose_data_transformation.output_path
+  function_name = var.lambda_function_name
 
-  role             = "${aws_iam_role.lambda.arn}"
+  role             = aws_iam_role.lambda.arn
   handler          = "${var.lambda_function_file_name}.lambda_handler"
-  source_code_hash = "${data.archive_file.kinesis_firehose_data_transformation.0.output_base64sha256}"
+  source_code_hash = data.archive_file.kinesis_firehose_data_transformation.output_base64sha256
   runtime          = "python3.6"
   timeout          = 60
 }
 
 resource "aws_glue_catalog_database" "glue_catalog_database" {
-  name = "${var.glue_catalog_database_name}"
+  name = var.glue_catalog_database_name
 }
 
 resource "aws_glue_catalog_table" "glue_catalog_table" {
-  name          = "${var.glue_catalog_table_name}"
-  database_name = "${aws_glue_catalog_database.glue_catalog_database.name}"
+  name          = var.glue_catalog_table_name
+  database_name = aws_glue_catalog_database.glue_catalog_database.name
 
   parameters = {
     "classification" = "parquet"
@@ -143,17 +143,17 @@ resource "aws_glue_catalog_table" "glue_catalog_table" {
       }
     }
 
-    columns = "${var.glue_catalog_table_columns}"
+    columns = var.glue_catalog_table_columns
   }
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "cloudwatch_subscription_filter" {
-  name           = "${var.cloudwatch_subscription_filter_name}"
-  log_group_name = "${var.cloudwatch_log_group_name}"
-  filter_pattern = "${var.cloudwatch_filter_pattern}"
+  name           = var.cloudwatch_subscription_filter_name
+  log_group_name = var.cloudwatch_log_group_name
+  filter_pattern = var.cloudwatch_filter_pattern
 
-  destination_arn = "${aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn}"
+  destination_arn = aws_kinesis_firehose_delivery_stream.kinesis_firehose_stream.arn
   distribution    = "ByLogStream"
 
-  role_arn = "${aws_iam_role.cloudwatch_logs_role.arn}"
+  role_arn = aws_iam_role.cloudwatch_logs_role.arn
 }

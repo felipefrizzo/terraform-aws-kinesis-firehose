@@ -1,5 +1,5 @@
 # terraform-aws-kinesis-firehose
-Terraform module to starting a [kinesis firehose]('https://aws.amazon.com/kinesis/data-firehose/') analytics
+This code creates a [Kinesis Firehose]('('https://aws.amazon.com/kinesis/data-firehose/') in AWS to send CloudWatch log data to S3.
 
 ## Usage
 ```

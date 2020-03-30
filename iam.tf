@@ -121,7 +121,7 @@ data "aws_iam_policy_document" "cloudwatch_logs_assume_role" {
 
     principals {
       type        = "Service"
-      identifiers = ["logs.${length(var.region) > 0 ? var.region: data.aws_region.default.name}.amazonaws.com"]
+      identifiers = ["logs.${length(var.region) > 0 ? var.region : data.aws_region.default.name}.amazonaws.com"]
     }
   }
 }

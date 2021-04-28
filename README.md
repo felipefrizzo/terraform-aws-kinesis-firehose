@@ -1,8 +1,10 @@
 # terraform-aws-kinesis-firehose
-This code creates a [Kinesis Firehose]('('https://aws.amazon.com/kinesis/data-firehose/') in AWS to send CloudWatch log data to S3.
+
+This code creates a [Kinesis Firehose]('https://aws.amazon.com/kinesis/data-firehose/') in AWS to send CloudWatch log data to S3.
 
 ## Usage
-```
+
+```terraform
 module "kinesis-firehose" {
   source                                = "git::https://github.com/felipefrizzo/terraform-aws-kinesis-firehose.git?ref=master"
   region                                = "aws_region"
@@ -14,7 +16,12 @@ module "kinesis-firehose" {
   lambda_function_file_name             = "kinesis-firehose-cloudwatch-logs-json-processor-python"
   glue_catalog_database_name            = "glue_catalog_database_name"
   glue_catalog_table_name               = "glue_catalog_table_name"
-  glue_catalog_table_columns            = []
+  glue_catalog_table_columns            = {
+    "column_name" = {
+      name = "column_name"
+      type = "column_type"
+    }
+  }
   cloudwatch_subscription_filter_name   = "cloudwatch_subscription_filter_name"
   cloudwatch_log_group_name             = "cloudwatch_log_group_name"
   cloudwatch_filter_pattern             = "cloudwatch_filter_pattern"
@@ -33,7 +40,7 @@ module "kinesis-firehose" {
 | lambda_function_file_name | Lambda function file name | string | - | yes |
 | glue_catalog_database_name | Glue catalog database name | string | - | yes |
 | glue_catalog_table_name | Glue catalog database table name | string | - | yes |
-| glue_catalog_table_columns | A list of table columns (e.g. `['id', 'name']`) | list | `<list>` | yes |
+| glue_catalog_table_columns | A map of object of table columns | map | `<map>` | yes |
 | cloudwatch_subscription_filter_name | Subscription filter name | string | - | yes |
 | cloudwatch_log_group_name | Cloudwatch log group name | string | - | yes |
 | cloudwatch_filter_pattern | Cloudwatch filter pattern | string | - | yes |

@@ -42,7 +42,10 @@ variable "glue_catalog_table_name" {
 
 variable "glue_catalog_table_columns" {
   description = "A list of table columns"
-  type        = list(string)
+  type        = map(object({
+    name = string
+    type = string
+  }))
 }
 
 variable "cloudwatch_subscription_filter_name" {

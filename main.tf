@@ -26,14 +26,14 @@ resource "aws_kinesis_firehose_delivery_stream" "kinesis_firehose_stream" {
     processing_configuration {
       enabled = true
 
-      processors = [{
+      processors {
         type = "Lambda"
 
-        parameters = [{
+        parameters {
           parameter_name  = "LambdaArn"
           parameter_value = "${aws_lambda_function.lambda_kinesis_firehose_data_transformation.arn}:$LATEST"
-        }]
-      }]
+        }
+      }
     }
 
     cloudwatch_logging_options {
@@ -98,6 +98,11 @@ data "archive_file" "kinesis_firehose_data_transformation" {
   type        = "zip"
   source_file = data.null_data_source.lambda_file.outputs.filename
   output_path = data.null_data_source.lambda_archive.outputs.filename
+
+  depends_on = [
+    data.null_data_source.lambda_file,
+    data.null_data_source.lambda_archive,
+  ]
 }
 
 resource "aws_cloudwatch_log_group" "lambda_function_logging_group" {
@@ -127,12 +132,12 @@ resource "aws_glue_catalog_table" "glue_catalog_table" {
     "classification" = "parquet"
   }
 
-  storage_descriptor = {
+  storage_descriptor {
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
     location      = "s3://${aws_s3_bucket.kinesis_firehose_stream_bucket.bucket}/"
 
-    ser_de_info = {
+    ser_de_info {
       name                  = "JsonSerDe"
       serialization_library = "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
 
@@ -143,7 +148,13 @@ resource "aws_glue_catalog_table" "glue_catalog_table" {
       }
     }
 
-    columns = var.glue_catalog_table_columns
+    dynamic "columns" {
+      for_each = var.glue_catalog_table_columns
+      content {
+        name = columns.value["name"]
+        type = columns.value["type"]
+      }
+    }
   }
 }
 

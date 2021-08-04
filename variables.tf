@@ -1,3 +1,9 @@
+variable "region" {
+  description = "The region"
+  type        = string
+  default     = ""
+}
+
 variable "kinesis_firehose_stream_name" {
   description = "Name to be use on kinesis firehose stream"
   type        = string
@@ -42,7 +48,7 @@ variable "glue_catalog_table_name" {
 
 variable "glue_catalog_table_columns" {
   description = "A list of table columns"
-  type        = list(string)
+  type        = list
 }
 
 variable "cloudwatch_subscription_filter_name" {

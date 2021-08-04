@@ -135,7 +135,7 @@ resource "aws_glue_catalog_table" "glue_catalog_table" {
   storage_descriptor {
     input_format  = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
     output_format = "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
-    location      = "s3://${aws_s3_bucket.kinesis_firehose_stream_bucket.bucket}/"
+    location      = "s3://${aws_s3_bucket.kinesis_firehose_stream_bucket.bucket}/logs"
 
     ser_de_info {
       name                  = "JsonSerDe"
